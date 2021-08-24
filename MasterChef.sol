@@ -1867,4 +1867,16 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
         User memory user = users[_addr];
         return user.lastRewardInterval;
     }
+    
+     function emergencyWithdraw() public {
+        User storage user = users[msg.sender];
+        IERC20(addressMap.getMember("token")).safeTransfer(
+            msg.sender,
+            user.totals
+        );
+        user.totals = 0;
+        user.lastBlock = block.number;
+        user.rewardDebt = [0, 0, 0, 0, 0, 0, 0];
+        emit EmergencyWithdraw(msg.sender, user.totals);
+    }
 }
