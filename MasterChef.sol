@@ -1787,23 +1787,21 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
             "Check failure"
         );
 
+        user.lastRewardInterval = _stop;
+        
         //Proceeds are calculated, issued, and the final withdrawal interval is reset
         uint256[] memory feeBonus = _e;
         for (uint256 j = 0; j < tokenList.length; j++) {
             if (feeBonus[j] > 0) {
                 if (address(tokenList[j]) == address(0)) {
-                    (bool success, ) = msg.sender.call{value: feeBonus[j]}("");
-                    require(
-                        success,
-                        "Address: unable to send value, recipient may have reverted"
-                    );
+                    msg.sender.transfer(feeBonus[j]);
                 } else {
                     IERC20(tokenList[j]).transfer(msg.sender, feeBonus[j]);
                 }
             }
         }
 
-        user.lastRewardInterval = _stop;
+       
         emit UserWithdrawFeeBonus(
             msg.sender,
             _stop,
