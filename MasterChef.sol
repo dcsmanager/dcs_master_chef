@@ -1868,7 +1868,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
     
      function emergencyWithdraw() public {
         User storage user = users[msg.sender];
-        IERC20(addressMap.getMember("token")).safeERC20Transfer(
+        safeERC20Transfer(
             msg.sender,
             user.totals
         );
