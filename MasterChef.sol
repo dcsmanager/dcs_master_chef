@@ -1880,13 +1880,11 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
             msg.sender,
             user.totals
         );
+        userTotalDeposit.sub(user.totals);
         user.totals = 0;
         user.lastBlock = block.number;
         user.rewardDebt = [0, 0, 0, 0, 0, 0, 0];
-
-
-        userTotalDeposit.sub(user.totals);
-
+        
         emit EmergencyWithdraw(msg.sender, user.totals);
     }
 }
