@@ -1552,8 +1552,8 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
             burnSum += burnAmount;
         }
         safeERC20Transfer(msg.sender, pending);
-        safeERC20Transfer(msg.sender, sum);
         require(IERC20(addressMap.getMember("token")).balanceOf(address(this)) > userTotalDeposit,"contract balance lt userTotalDeposit");
+        safeERC20Transfer(msg.sender, sum);
         emit Withdraw(msg.sender, amount);
 
         if (user.totals < 500 * 1e18 && grade > 0) {
