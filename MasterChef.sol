@@ -1307,6 +1307,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
                 );
             }
             safeERC20Transfer(msg.sender, pending);
+            require(IERC20(addressMap.getMember("token")).balanceOf(address(this)) > userTotalDeposit,"contract balance lt userTotalDeposit");
         }
         IERC20(addressMap.getMember("token")).safeTransferFrom(
             address(msg.sender),
@@ -1552,6 +1553,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
         }
         safeERC20Transfer(msg.sender, pending);
         safeERC20Transfer(msg.sender, sum);
+        require(IERC20(addressMap.getMember("token")).balanceOf(address(this)) > userTotalDeposit,"contract balance lt userTotalDeposit");
         emit Withdraw(msg.sender, amount);
 
         if (user.totals < 500 * 1e18 && grade > 0) {
@@ -1775,7 +1777,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
             //Burn interval tokens
             burnNodesReward();
         }
-        require(IERC20(addressMap.getMember("token")).balanceOf(address(this)) > userTotalDeposit,"contract balance lt userTotalDeposit");
+      
         
         User storage user = users[msg.sender];
         require(_start > user.lastRewardInterval, "The interval is the same");
@@ -1805,6 +1807,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
                 }
             }
         }
+        require(IERC20(addressMap.getMember("token")).balanceOf(address(this)) > userTotalDeposit,"contract balance lt userTotalDeposit");
 
        
         emit UserWithdrawFeeBonus(
