@@ -797,7 +797,7 @@ contract DCSToken is ERC20, ERC20Detailed, ERC20Capped ,Ownable{
         _mint(msg.sender, 300 * 10**4 * (10**18));
     }
 
-    function burn（uint256 _amount) public {
+    function burn(uint256 _amount) public {
         _burn(msg.sender, _amount);
     }
 }
