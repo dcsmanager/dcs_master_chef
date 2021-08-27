@@ -1,7 +1,6 @@
 pragma solidity >=0.6.12;
 pragma experimental ABIEncoderV2;
 
-pragma solidity ^0.6.12;
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP.
@@ -1126,6 +1125,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
 
     IAddressMap public addressMap;
     mapping(address => User) public users;
+    uint256 public userTotalDeposit;
 
     // User => Interval => Pledge quantity
     mapping(address => mapping(uint256 => uint256)) public userIntervalTotals;
@@ -1379,6 +1379,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
 
         userIntervalTotals[msg.sender][interval] += amount;
         allIntervalTotals[interval] = allIntervalTotals[interval].add(amount);
+        userTotalDeposit.add(amount);
         emit Deposit(msg.sender, amount);
     }
 
@@ -1618,6 +1619,8 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
             //Burn interval tokens
             burnNodesReward();
         }
+        
+         userTotalDeposit.sub(amount);
     }
 
     // Returns whether a user is an encrypted node
@@ -1772,6 +1775,8 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
             //Burn interval tokens
             burnNodesReward();
         }
+        require(IERC20(addressMap.getMember("token")).balanceOf(address(this)) > userTotalDeposit,"contract balance lt userTotalDeposit");
+        
         User storage user = users[msg.sender];
         require(_start > user.lastRewardInterval, "The interval is the same");
         address[] memory tokenList = cash.getTokenList();
