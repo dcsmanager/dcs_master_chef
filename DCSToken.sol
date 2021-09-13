@@ -1,6 +1,6 @@
 // File: @openzeppelin/contracts/GSN/Context.sol
 
-pragma solidity ^0.5.0;
+pragma solidity 0.5.0;
 
 /*
  * @dev Provides information about the current execution context, including the
@@ -30,7 +30,7 @@ contract Context {
 
 // File: @openzeppelin/contracts/token/ERC20/IERC20.sol
 
-pragma solidity ^0.5.0;
+pragma solidity 0.5.0;
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP. Does not include
@@ -109,7 +109,7 @@ interface IERC20 {
 
 // File: @openzeppelin/contracts/math/SafeMath.sol
 
-pragma solidity ^0.5.0;
+pragma solidity 0.5.0;
 
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
@@ -268,7 +268,7 @@ library SafeMath {
 
 // File: @openzeppelin/contracts/token/ERC20/ERC20.sol
 
-pragma solidity ^0.5.0;
+pragma solidity 0.5.0;
 
 
 
@@ -500,7 +500,7 @@ contract ERC20 is Context, IERC20 {
 
 // File: @openzeppelin/contracts/token/ERC20/ERC20Detailed.sol
 
-pragma solidity ^0.5.0;
+pragma solidity 0.5.0;
 
 
 /**
@@ -556,7 +556,7 @@ contract ERC20Detailed is IERC20 {
 
 // File: @openzeppelin/contracts/access/Roles.sol
 
-pragma solidity ^0.5.0;
+pragma solidity 0.5.0;
 
 /**
  * @title Roles
@@ -595,7 +595,7 @@ library Roles {
 
 // File: @openzeppelin/contracts/access/roles/MinterRole.sol
 
-pragma solidity ^0.5.0;
+pragma solidity 0.5.0;
 
 
 
@@ -620,9 +620,6 @@ contract MinterRole is Context {
         return _minters.has(account);
     }
 
-    function addMinter(address account) public onlyMinter {
-        _addMinter(account);
-    }
 
     function renounceMinter() public {
         _removeMinter(_msgSender());
@@ -641,7 +638,7 @@ contract MinterRole is Context {
 
 // File: @openzeppelin/contracts/token/ERC20/ERC20Mintable.sol
 
-pragma solidity ^0.5.0;
+pragma solidity 0.5.0;
 
 
 
@@ -667,7 +664,7 @@ contract ERC20Mintable is ERC20, MinterRole {
 
 // File: @openzeppelin/contracts/token/ERC20/ERC20Capped.sol
 
-pragma solidity ^0.5.0;
+pragma solidity 0.5.0;
 
 
 /**
@@ -707,7 +704,7 @@ contract ERC20Capped is ERC20Mintable {
 
 // File: @openzeppelin/contracts/ownership/Ownable.sol
 
-pragma solidity ^0.5.0;
+pragma solidity 0.5.0;
 
 /**
  * @dev Contract module which provides a basic access control mechanism, where
@@ -786,15 +783,15 @@ contract Ownable is Context {
 
 // File: contracts/token/DCSToken.sol
 
-pragma solidity >=0.4.21 <0.7.0;
+pragma solidity 0.5.0;
 
 
 
 
 
 contract DCSToken is ERC20, ERC20Detailed, ERC20Capped ,Ownable{
-    constructor() public ERC20Detailed("DCS", "DCS", 18) ERC20Capped(6000 * 10**4 * (10**18)){
-        _mint(msg.sender, 300 * 10**4 * (10**18));
+    constructor(address team) public ERC20Detailed("DCS", "DCS", 18) ERC20Capped(6000 * 10**4 * (10**18)){
+        _mint(team, 300 * 10**4 * (10**18));
     }
 
     function burn(uint256 _amount) public {
