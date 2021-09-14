@@ -1,4 +1,4 @@
-pragma solidity >=0.6.12;
+pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 
@@ -740,7 +740,7 @@ abstract contract Initializable {
      */
     modifier initializer() {
         require(
-            _initializing || _isConstructor() || !_initialized,
+            _initializing  || !_initialized,
             "Initializable: contract is already initialized"
         );
 
@@ -757,10 +757,7 @@ abstract contract Initializable {
         }
     }
 
-    /// @dev Returns true if and only if the function is running in the constructor
-    function _isConstructor() private view returns (bool) {
-        return !Address.isContract(address(this));
-    }
+   
 }
 
 /*
@@ -1046,7 +1043,7 @@ interface IVerify {
 
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity 0.6.12;
 
 /**
  * @dev Standard math utilities missing in the Solidity language.
@@ -1119,7 +1116,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
     // Interval => Token index => The amount of rewards available in the interval
     mapping(uint256 => mapping(uint256 => uint256)) public intervalBonus;
     // Interval => Token index => The amount of rewards issued in the interval
-    mapping(uint256 => mapping(uint256 => uint256)) public bonusDebt;
+    // mapping(uint256 => mapping(uint256 => uint256)) public bonusDebt;
 
     uint256 public lastInterval; //Last update interval
 
@@ -1130,8 +1127,8 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
     // User => Interval => Pledge quantity
     mapping(address => mapping(uint256 => uint256)) public userIntervalTotals;
     uint256 public allDeposit; //The pledge amount
-    uint256 public forMax; //Cycle maximum
-    uint256 public forMaxInvite; //Loop sub maximum
+    // uint256 public forMax; //Cycle maximum
+    // uint256 public forMaxInvite; //Loop sub maximum
     event Deposit(address indexed user, uint256 amount);
     event Withdraw(address indexed user, uint256 amount);
     event NewRegister(address indexed user, address parent);
@@ -1162,6 +1159,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
         startBlock = _startBlock;
         periodsBlock = _tokenPerBlock;
         addressMap = _addressMap;
+        lastInterval = 0;
 
         uint8[7] memory quto = [45, 10, 12, 10, 8, 8, 7];
         for (uint8 i = 0; i < quto.length; i++) {
@@ -1283,7 +1281,8 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
         User storage user = users[msg.sender];
         uint8 grade = user.grade;
         uint8 newGrade = getGrade(msg.sender, amount, _g, _s, _t);
-
+        require(newGrade >=0 && newGrade <=6,"newGrade out of range");
+        
         updatePool(0, amount, 1);
         if (newGrade > 0) {
             updatePool(newGrade, amount, 1);
@@ -1389,7 +1388,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
         uint256 interval = cash.getInterval();
         if (interval != lastInterval) {
             // Interval update
-            uint256 intervalDiffer = interval - lastInterval;
+            uint256 intervalDiffer = interval.sub(lastInterval);
             if (intervalDiffer != 0) {
                 address[] memory tokenList = cash.getTokenList();
                 for (uint256 i = 0; i < intervalDiffer; i++) {
@@ -1421,7 +1420,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
         ICash cash = ICash(addressMap.getMember("cash"));
         uint256 interval = cash.getInterval();
 
-        uint256 intervalDiffer = interval - lastInterval;
+        uint256 intervalDiffer = interval.sub(lastInterval);
         if (intervalDiffer == 0) {
             return;
         }
@@ -1705,9 +1704,9 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
             tokenBal = IERC20(addressMap.getMember("token")).balanceOf(
                 address(this)
             );
-            IERC20(addressMap.getMember("token")).transfer(_to, tokenBal);
+            IERC20(addressMap.getMember("token")).safeTransfer(_to, tokenBal);
         } else {
-            IERC20(addressMap.getMember("token")).transfer(_to, _amount);
+            IERC20(addressMap.getMember("token")).safeTransfer(_to, _amount);
         }
     }
 
@@ -1801,13 +1800,14 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
         for (uint256 j = 0; j < tokenList.length; j++) {
             if (feeBonus[j] > 0) {
                 if (address(tokenList[j]) == address(0)) {
-                    msg.sender.transfer(feeBonus[j]);
+                    Address.sendValue(msg.sender,feeBonus[j]);
+                    // msg.sender.transfer(feeBonus[j]);
                 } else {
-                    IERC20(tokenList[j]).transfer(msg.sender, feeBonus[j]);
+                    IERC20(tokenList[j]).safeTransfer(msg.sender, feeBonus[j]);
                 }
             }
         }
-        require(IERC20(addressMap.getMember("token")).balanceOf(address(this)) > userTotalDeposit,"contract balance lt userTotalDeposit");
+        require(IERC20(addressMap.getMember("token")).balanceOf(address(this)) > userTotalDeposit,"contract balance lt or equals to userTotalDeposit");
 
        
         emit UserWithdrawFeeBonus(
