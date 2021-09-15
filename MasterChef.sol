@@ -878,12 +878,12 @@ abstract contract ManagerUpgradeable is OwnableUpgradeable {
 
     //modifier
     modifier onlyManagers() {
-        require(managers[msg.sender]);
+        require(managers[msg.sender],"only Managers");
         _;
     }
 
-    event SetManager(address _manager);
-    event RemoveManager(address _manager);
+    event SetManager(address indexed _manager);
+    event RemoveManager(address indexed _manager);
 
     function setManager(address _manager) public onlyOwner {
         managers[_manager] = true;
@@ -909,12 +909,12 @@ contract PausableUpgradeable is Initializable, ContextUpgradeable {
     /**
      * @dev Emitted when the pause is triggered by `account`.
      */
-    event Paused(address account);
+    event Paused(address indexed account);
 
     /**
      * @dev Emitted when the pause is lifted by `account`.
      */
-    event Unpaused(address account);
+    event Unpaused(address indexed account);
 
     bool private _paused;
 
@@ -1246,8 +1246,8 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
                     address(this),
                     maxMint.sub(mintAmount)
                 );
-                staticMint += maxMint.sub(staticMint);
-                mintAmount += maxMint.sub(mintAmount);
+                staticMint = maxMint;
+                mintAmount = maxMint;
             }
 
             pool.accTokenPerShare = pool.accTokenPerShare.add(
@@ -1299,10 +1299,10 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
 
             if (grade > 0) {
                 PoolInfo storage currentPoolNode = poolInfo[grade];
-                pending = pending.add(
+                pending = pending.add(user.totals.mul (
                     currentPoolNode.accTokenPerShare.div(1e12).sub(
                         user.rewardDebt[grade]
-                    )
+                    ))
                 );
             }
             safeERC20Transfer(msg.sender, pending);
@@ -1345,12 +1345,12 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
                 }
             }
             if (grade > 0) {
-                user.rewardDebt[grade] = (poolNode.accTokenPerShare).div(1e12);
+                user.rewardDebt[grade] = (user.totals.mul (poolNode.accTokenPerShare).div(1e12));
             }
             if (newGrade > 0) {
-                user.rewardDebt[newGrade] = (poolNewNode.accTokenPerShare).div(
+                user.rewardDebt[newGrade] = (user.totals.mul (poolNewNode.accTokenPerShare).div(
                     1e12
-                );
+                ));
             }
             user.grade = newGrade;
 
@@ -1645,13 +1645,12 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
         string memory _t
     ) public view returns (uint8) {
         User memory currentUser = users[_user];
-        if (
-            currentUser.grade == 0 && currentUser.totals + _amount >= 500 * 1e18
-        ) {} else {
-            if (!getIsEncryptionNode(_user)) {
+        if (currentUser.grade != 0 || currentUser.totals + _amount < 500 * 1e1) {
+             if (!getIsEncryptionNode(_user)) {
                 return 0;
             }
-        }
+        } 
+        
         require(
             IVerify(addressMap.getMember("verify")).checkVerify(
                 _g,
@@ -1807,7 +1806,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
                 }
             }
         }
-        require(IERC20(addressMap.getMember("token")).balanceOf(address(this)) > userTotalDeposit,"contract balance lt or equals to userTotalDeposit");
+        require(IERC20(addressMap.getMember("token")).balanceOf(address(this)) >= userTotalDeposit,"contract balance lt or equals to userTotalDeposit");
 
        
         emit UserWithdrawFeeBonus(
