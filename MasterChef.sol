@@ -1246,6 +1246,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
                     address(this),
                     maxMint.sub(mintAmount)
                 );
+                tokenReward = maxMint.sub(mintAmount);
                 staticMint = maxMint;
                 mintAmount = maxMint;
             }
@@ -1299,10 +1300,10 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
 
             if (grade > 0) {
                 PoolInfo storage currentPoolNode = poolInfo[grade];
-                pending = pending.add(user.totals.mul (
+                pending = pending.add(
                     currentPoolNode.accTokenPerShare.div(1e12).sub(
                         user.rewardDebt[grade]
-                    ))
+                    )
                 );
             }
             safeERC20Transfer(msg.sender, pending);
@@ -1345,12 +1346,12 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
                 }
             }
             if (grade > 0) {
-                user.rewardDebt[grade] = (user.totals.mul (poolNode.accTokenPerShare).div(1e12));
+                user.rewardDebt[grade] = (poolNode.accTokenPerShare).div(1e12);
             }
             if (newGrade > 0) {
-                user.rewardDebt[newGrade] = (user.totals.mul (poolNewNode.accTokenPerShare).div(
+                user.rewardDebt[newGrade] = (poolNewNode.accTokenPerShare).div(
                     1e12
-                ));
+                );
             }
             user.grade = newGrade;
 
@@ -1548,6 +1549,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
                 burnAmount
             );
             sum = amount.sub(burnAmount);
+            require(sum > 0,"real withdraw num need gt 0");
             burnSum += burnAmount;
         }
         safeERC20Transfer(msg.sender, pending);
