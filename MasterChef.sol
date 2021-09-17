@@ -1574,19 +1574,19 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
             //demotion
             if (newGrade < grade) {
                 if (newGrade == 0) {
-                    poolNode.totals -= 1;
+                    poolNode.totals = 1;
                 } else {
-                    poolNewNode.totals += 1;
-                    poolNode.totals -= 1;
+                    poolNewNode.totals = poolNewNode.totals.add(1);
+                    poolNode.totals =poolNode.totals.sub(1);
                 }
             }
             //upgrade
             if (newGrade > grade) {
                 if (grade == 0) {
-                    poolNewNode.totals += 1;
+                    poolNewNode.totals = poolNewNode.totals.add(1);
                 } else {
-                    poolNewNode.totals += 1;
-                    poolNode.totals -= 1;
+                    poolNewNode.totals =  poolNewNode.totals.add(1);
+                    poolNode.totals = poolNode.totals.sub(1);
                 }
             }
             if (grade > 0) {
