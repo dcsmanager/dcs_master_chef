@@ -1307,7 +1307,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
                 );
             }
             safeERC20Transfer(msg.sender, pending);
-            require(IERC20(addressMap.getMember("token")).balanceOf(address(this)) > userTotalDeposit,"contract balance lt userTotalDeposit");
+            require(IERC20(addressMap.getMember("token")).balanceOf(address(this)) >= userTotalDeposit,"contract balance lt userTotalDeposit");
         }
         IERC20(addressMap.getMember("token")).safeTransferFrom(
             address(msg.sender),
@@ -1380,7 +1380,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
 
         userIntervalTotals[msg.sender][interval] += amount;
         allIntervalTotals[interval] = allIntervalTotals[interval].add(amount);
-        userTotalDeposit.add(amount);
+        userTotalDeposit = userTotalDeposit.add(amount);
         emit Deposit(msg.sender, amount);
     }
 
@@ -1553,7 +1553,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
             burnSum += burnAmount;
         }
         safeERC20Transfer(msg.sender, pending);
-        require(IERC20(addressMap.getMember("token")).balanceOf(address(this)) > userTotalDeposit,"contract balance lt userTotalDeposit");
+        require(IERC20(addressMap.getMember("token")).balanceOf(address(this)) >= userTotalDeposit,"contract balance lt userTotalDeposit");
         safeERC20Transfer(msg.sender, sum);
         emit Withdraw(msg.sender, amount);
 
@@ -1623,7 +1623,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
             burnNodesReward();
         }
         
-         userTotalDeposit.sub(amount);
+         userTotalDeposit = userTotalDeposit.sub(amount);
     }
 
     // Returns whether a user is an encrypted node
@@ -1881,7 +1881,7 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
             msg.sender,
             user.totals
         );
-        userTotalDeposit.sub(user.totals);
+        userTotalDeposit = userTotalDeposit.sub(user.totals);
         user.totals = 0;
         user.lastBlock = block.number;
         user.rewardDebt = [0, 0, 0, 0, 0, 0, 0];
