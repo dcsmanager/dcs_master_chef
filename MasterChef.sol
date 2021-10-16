@@ -1288,6 +1288,10 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
         if (newGrade > 0) {
             updatePool(newGrade, amount, 1);
         }
+        
+        if (grade > 0 && grade != newGrade) {
+            updatePool(grade, 0, 0);
+        }
 
         PoolInfo storage pool = poolInfo[0];
         if (user.totals > 0) {
@@ -1610,6 +1614,9 @@ contract MasterChef is ManagerUpgradeable, PausableUpgradeable {
                 PoolInfo storage poolNode = poolInfo[grade];
                 user.rewardDebt[grade] = (poolNode.accTokenPerShare).div(1e12);
             }
+        }
+        if (grade > 0 && grade != newGrade) {
+            updatePool(grade, 0, 0);
         }
 
         //If the intervals are not consistent, the interval updates are made and the processing fees available to the Chef are migrated
